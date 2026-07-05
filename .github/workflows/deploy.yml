@@ -54,14 +54,6 @@ jobs:
         with:
           path: site/dist
 
-      - name: Build Pagefind search index
-        run: npx pagefind --site dist
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-
   deploy:
     needs: build
     runs-on: ubuntu-latest
