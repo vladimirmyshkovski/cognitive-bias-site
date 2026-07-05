@@ -149,4 +149,25 @@
     font-size: 0.875rem;
     padding: 0.5rem 0;
   }
+  /* Highlighted matches (Pagefind wraps matches in <mark>) */
+  .pagefind-container mark {
+    background-color: rgb(254 240 138); /* yellow-200 */
+    color: rgb(15 23 42); /* slate-900 */
+    padding: 0 2px;
+    border-radius: 2px;
+    font-weight: 500;
+  }
+  .dark .pagefind-container mark {
+    background-color: rgb(202 138 4); /* yellow-600 */
+    color: rgb(15 23 42);
+  }
+  /* Hide the inline magnifier icon (Pagefind draws an SVG inside the input via
+     ::before pseudo-element). We add our own padding so text doesn't overlap. */
+  .pagefind-container .pagefind-ui__search-input {
+    background-image: none !important;
+    padding-left: 1rem !important; /* was 3rem from icon */
+  }
+  .pagefind-container .pagefind-ui__search-input::placeholder {
+    color: rgb(148 163 184);
+  }
 </style>

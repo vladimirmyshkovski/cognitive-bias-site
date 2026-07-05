@@ -38,7 +38,7 @@ const displayEnd = pageItems.length;
 const itemsWithHtml = await Promise.all(
   pageItems.map(async (b) => ({
     ...b,
-    descriptionHtml: await renderMarkdown(b.description),
+    descriptionHtml: await renderMarkdown(b.description, base),
   }))
 );
 ---

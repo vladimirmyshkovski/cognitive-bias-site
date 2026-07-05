@@ -16,8 +16,8 @@ export async function getStaticPaths() {
 }
 
 const { bias } = Astro.props;
-const html = await renderMarkdown(bias.body);
-const descriptionHtml = bias.description ? await renderMarkdown(bias.description) : '';
+const html = await renderMarkdown(bias.body, base);
+const descriptionHtml = bias.description ? await renderMarkdown(bias.description, base) : '';
 ---
 
 <BaseLayout

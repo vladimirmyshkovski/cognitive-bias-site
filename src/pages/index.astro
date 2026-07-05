@@ -10,7 +10,7 @@ const biases = await loadAllBiases();
 const recentBiases = await Promise.all(
   biases.slice(-6).reverse().map(async (b) => ({
     ...b,
-    descriptionHtml: await renderMarkdown(b.description),
+    descriptionHtml: await renderMarkdown(b.description, base),
   }))
 );
 

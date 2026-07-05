@@ -50,7 +50,7 @@ const displayEnd = Math.min(displayStart + biases.length - 1, total);
 const itemsWithHtml = await Promise.all(
   biases.map(async (b) => ({
     ...b,
-    descriptionHtml: await renderMarkdown(b.description),
+    descriptionHtml: await renderMarkdown(b.description, base),
   }))
 );
 ---

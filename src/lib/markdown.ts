@@ -1,11 +1,20 @@
 /**
- * Minimal markdown-to-HTML renderer
- * Handles the subset used in the encyclopedia: ## headings, lists, **bold**, [text](url)
+ * Minimal markdown-to-HTML renderer.
+ * Handles the subset used in the encyclopedia: ## headings, lists, **bold**, [text](url), [[wiki-links]].
+ *
+ * @param md   - Markdown source
+ * @param base - Site base path (e.g. '/cognitive-bias-site/'). All internal links
+ *               (catalog wiki-links) are prefixed with this. Required — pass
+ *               `import.meta.env.BASE_URL.replace(/\/?$/, '/')` from .astro files.
+ * @param knownSlugs - Optional set of catalog slugs. Wiki-links pointing at
+ *               non-catalog entries (e.g. [[Диалектическое мышление]]) are
+ *               rendered as plain italic text instead of broken links.
  */
-export async function renderMarkdown(md: string): Promise<string> {
-  // We use a simple regex-based approach to avoid pulling in heavy dependencies
-  // The encyclopedia uses a limited markdown subset that we handle here
-
+export async function renderMarkdown(
+  md: string,
+  base: string,
+  knownSlugs: Set<string> = new Set()
+): Promise<string> {
   const lines = md.split('\n');
   const out: string[] = [];
   let inList = false;
@@ -26,10 +35,23 @@ export async function renderMarkdown(md: string): Promise<string> {
     return s
       .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
       .replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>')
-      .replace(/\[\[ru\/5\. Каталог\/([^\]|]+)\|([^\]]+)\]\]/g, '<a href="/biases/$1/">$2</a>')
-      .replace(/\[\[ru\/5\. Каталог\/([^\]]+)\]\]/g, '<a href="/biases/$1/">$1</a>')
-      .replace(/\[\[([^\]|]+)\|([^\]]+)\]\]/g, '<a href="/biases/$1/">$2</a>')
-      .replace(/\[\[([^\]]+)\]\]/g, '<a href="/biases/$1/">$1</a>')
+      // Catalog wiki-links with alias: [[ru/5. Каталог/Name|alias]]
+      .replace(/\[\[ru\/5\. Каталог\/([^\]|]+)\|([^\]]+)\]\]/g, (_, name, alias) =>
+        `<a href="${base}biases/${slugify(name)}/">${inline(alias)}</a>`
+      )
+      // Catalog wiki-links without alias: [[ru/5. Каталог/Name]]
+      .replace(/\[\[ru\/5\. Каталог\/([^\]]+)\]\]/g, (_, name) =>
+        `<a href="${base}biases/${slugify(name)}/">${inline(name)}</a>`
+      )
+      // Non-catalog wiki-links with alias: [[Name|alias]] — render as plain text
+      .replace(/\[\[([^\]|]+)\|([^\]]+)\]\]/g, (_, _name, alias) =>
+        `<span class="text-slate-500 italic">${inline(alias)}</span>`
+      )
+      // Non-catalog wiki-links without alias: [[Name]] — render as plain text
+      .replace(/\[\[([^\]]+)\]\]/g, (_, name) =>
+        `<span class="text-slate-500 italic">${inline(name)}</span>`
+      )
+      // Markdown links: [text](url)
       .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
       .replace(/`([^`]+)`/g, '<code>$1</code>');
   }
@@ -128,11 +150,9 @@ export async function renderMarkdown(md: string): Promise<string> {
   return out.join('\n');
 }
 
-function slugify(s: string): string {
+export function slugify(s: string): string {
   return s
     .toLowerCase()
-    .replace(/[^\wа-яё\s-]/gi, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
+    .replace(/[^a-z0-9а-яё]+/g, '-')
     .replace(/^-|-$/g, '');
 }
