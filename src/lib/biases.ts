@@ -63,9 +63,16 @@ export function parseBiasContent(content: string): Omit<ParsedBias, 'slug'> {
   if (!description) description = title;
 
   const titleMatchEnd = content.match(FRONTMATTER_RE);
-  const body = titleMatchEnd
+  let body = titleMatchEnd
     ? content.substring(titleMatchEnd.index! + titleMatchEnd[0].length).trim()
     : content;
+
+  // Strip metadata block: **Также известно как:**, **Категория:**, **Связанные:**, and --- separator
+  body = body
+    .replace(/\*\*Также известно как:\*\*[^\n]*\n/g, '')
+    .replace(/\*\*Категория:\*\*[^\n]*\n/g, '')
+    .replace(/\*\*Связанные:\*\*[^\n]*\n/g, '')
+    .replace(/^---\s*\n/gm, '');
 
   return {
     title,

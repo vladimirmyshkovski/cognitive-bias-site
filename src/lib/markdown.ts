@@ -24,17 +24,13 @@ export async function renderMarkdown(md: string): Promise<string> {
 
   function inline(s: string): string {
     return s
-      // **bold**
       .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-      // *italic* (avoid matching **)
       .replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>')
-      // [[Wiki Link|alias]] → internal link
-      .replace(/\[\[([^\]|]+)\|([^\]]+)\]\]/g, '<a href="$1">$2</a>')
-      // [[Wiki Link]] → internal link
-      .replace(/\[\[([^\]]+)\]\]/g, '<a href="$1">$1</a>')
-      // [text](url) → external/markdown link
+      .replace(/\[\[ru\/5\. Каталог\/([^\]|]+)\|([^\]]+)\]\]/g, '<a href="/biases/$1/">$2</a>')
+      .replace(/\[\[ru\/5\. Каталог\/([^\]]+)\]\]/g, '<a href="/biases/$1/">$1</a>')
+      .replace(/\[\[([^\]|]+)\|([^\]]+)\]\]/g, '<a href="/biases/$1/">$2</a>')
+      .replace(/\[\[([^\]]+)\]\]/g, '<a href="/biases/$1/">$1</a>')
       .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
-      // `code`
       .replace(/`([^`]+)`/g, '<code>$1</code>');
   }
 
