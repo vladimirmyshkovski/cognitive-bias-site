@@ -103,6 +103,12 @@
   .pagefind-container .pagefind-ui__form {
     background: transparent;
   }
+  /* Hide Pagefind's built-in magnifier (it overlaps the first character).
+     Pagefind renders it via .pagefind-ui__form:before with mask-image,
+     not background-image, so background:none doesn't work. */
+  .pagefind-container .pagefind-ui__form::before {
+    display: none !important;
+  }
   .pagefind-container .pagefind-ui__search-input {
     font-family: inherit;
     font-size: 1rem;
@@ -160,14 +166,5 @@
   .dark .pagefind-container mark {
     background-color: rgb(202 138 4); /* yellow-600 */
     color: rgb(15 23 42);
-  }
-  /* Hide the inline magnifier icon (Pagefind draws an SVG inside the input via
-     ::before pseudo-element). We add our own padding so text doesn't overlap. */
-  .pagefind-container .pagefind-ui__search-input {
-    background-image: none !important;
-    padding-left: 1rem !important; /* was 3rem from icon */
-  }
-  .pagefind-container .pagefind-ui__search-input::placeholder {
-    color: rgb(148 163 184);
   }
 </style>
