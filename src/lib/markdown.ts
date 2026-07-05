@@ -156,3 +156,44 @@ export function slugify(s: string): string {
     .replace(/[^a-z0-9а-яё]+/g, '-')
     .replace(/^-|-$/g, '');
 }
+
+/**
+ * Strip markdown formatting and wiki-link brackets, returning plain text.
+ * Used for meta-description / og:description where raw markdown would leak.
+ */
+export function stripMarkdown(md: string): string {
+  return md
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '$1')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/\[\[([^\]|]+)\|([^\]]+)\]\]/g, '$2')
+    .replace(/\[\[([^\]]+)\]\]/g, '$1')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1')
+    .replace(/<[^>]+>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Truncate text for meta-description (155 chars is the typical safe limit
+ * for Google/Twitter/Facebook). Cuts at the last sentence boundary within
+ * the budget, falling back to the last word.
+ */
+export function truncateDescription(text: string, maxLen = 155): string {
+  const clean = text.trim();
+  if (clean.length <= maxLen) return clean;
+  const cut = clean.slice(0, maxLen);
+  const sentenceEnd = Math.max(
+    cut.lastIndexOf('. '),
+    cut.lastIndexOf('! '),
+    cut.lastIndexOf('? ')
+  );
+  if (sentenceEnd > maxLen * 0.5) {
+    return clean.slice(0, sentenceEnd + 1);
+  }
+  const lastSpace = cut.lastIndexOf(' ');
+  if (lastSpace > maxLen * 0.5) {
+    return clean.slice(0, lastSpace) + '…';
+  }
+  return clean.slice(0, maxLen - 1) + '…';
+}

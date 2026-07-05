@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { stripMarkdown, truncateDescription } from '../lib/markdown';
 
 interface Props {
   title: string;
@@ -16,13 +17,14 @@ const ogImage = image || `${base}og/${slug || 'default'}.png`;
 const ogImageUrl = new URL(ogImage, Astro.site).toString();
 const isBiasPage = !!category;
 void isBiasPage;
+const metaDescription = truncateDescription(stripMarkdown(description));
 
 const jsonLd = isBiasPage
   ? {
       '@context': 'https://schema.org',
       '@type': 'Article',
       headline: title,
-      description: description,
+      description: metaDescription,
       articleSection: category,
       inLanguage: 'ru-RU',
       url: canonical,
@@ -52,7 +54,7 @@ const jsonLd = isBiasPage
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title} | Cognitive Bias Encyclopedia</title>
-    <meta name="description" content={description} />
+    <meta name="description" content={metaDescription} />
 
     <!-- Canonical -->
     <link rel="canonical" href={canonical} />
@@ -60,7 +62,7 @@ const jsonLd = isBiasPage
     <!-- Open Graph -->
     <meta property="og:type" content={isBiasPage ? 'article' : 'website'} />
     <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
+    <meta property="og:description" content={metaDescription} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImageUrl} />
     <meta property="og:site_name" content="Cognitive Bias Encyclopedia" />
@@ -69,7 +71,7 @@ const jsonLd = isBiasPage
     <!-- Twitter Cards -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
+    <meta name="twitter:description" content={metaDescription} />
     <meta name="twitter:image" content={ogImageUrl} />
 
     <!-- JSON-LD structured data -->
