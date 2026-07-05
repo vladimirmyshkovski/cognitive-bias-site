@@ -1,4 +1,6 @@
 ---
+import Search from './Search.astro';
+
 const path = Astro.url.pathname;
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 ---
@@ -87,26 +89,4 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
   </div>
 </header>
 
-<script is:inline>
-  document.addEventListener('DOMContentLoaded', function() {
-    var btn = document.getElementById('search-btn');
-    if (!btn) return;
-    var initialized = false;
-    btn.addEventListener('click', function() {
-      if (!initialized) {
-        var el = document.createElement('div');
-        el.id = 'pagefind-search';
-        document.body.appendChild(el);
-        new window.PagefindUI({
-          element: '#pagefind-search',
-          showSubResults: true,
-          showImages: false,
-          resetStyles: false
-        });
-        initialized = true;
-      }
-      var el = document.getElementById('pagefind-search');
-      if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
-    });
-  });
-</script>
+<Search />

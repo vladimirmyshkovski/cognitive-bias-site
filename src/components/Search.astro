@@ -1,0 +1,152 @@
+---
+// Search modal — Pagefind UI wrapped in a fullscreen overlay.
+// Triggered by Navbar's #search-btn. Opens/closes via class.
+---
+
+<div
+  id="search-modal"
+  class="fixed inset-0 z-[100] hidden bg-slate-900/70 backdrop-blur-sm"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Поиск"
+>
+  <div class="absolute inset-0 flex items-start justify-center pt-16 px-4">
+    <div class="w-full max-w-2xl bg-white dark:bg-slate-800 rounded-lg shadow-2xl overflow-hidden">
+      <!-- Header: title + close -->
+      <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-700">
+        <h2 class="text-sm font-semibold text-slate-600 dark:text-slate-300">Поиск по энциклопедии</h2>
+        <button
+          id="search-close"
+          type="button"
+          class="text-slate-500 hover:text-slate-900 dark:hover:text-white p-1 rounded"
+          aria-label="Закрыть"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <!-- Pagefind target -->
+      <div id="pagefind-search" class="pagefind-container p-4"></div>
+      <!-- Footer hint -->
+      <div class="px-4 py-2 text-xs text-slate-500 border-t border-slate-200 dark:border-slate-700 flex justify-between">
+        <span>Поиск работает на Pagefind</span>
+        <span><kbd class="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-700 rounded">Esc</kbd> закрыть</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    var modal = document.getElementById('search-modal');
+    var btn = document.getElementById('search-btn');
+    var closeBtn = document.getElementById('search-close');
+    var pagefindTarget = document.getElementById('pagefind-search');
+    var initialized = false;
+
+    function open() {
+      if (!modal) return;
+      if (!initialized && window.PagefindUI) {
+        new window.PagefindUI({
+          element: '#pagefind-search',
+          showSubResults: true,
+          showImages: false,
+          resetStyles: false,
+          autofocus: true,
+          translations: {
+            placeholder: 'Введите запрос...',
+            zero_results: 'Ничего не найдено по запросу "[SEARCH_TERM]"',
+            many_results: 'Найдено [COUNT] результатов',
+            one_result: 'Найден 1 результат',
+            searching: 'Ищу...',
+            search: 'Поиск'
+          }
+        });
+        initialized = true;
+      }
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      // focus the input
+      var input = modal.querySelector('input');
+      if (input) setTimeout(function () { input.focus(); }, 50);
+    }
+
+    function close() {
+      if (!modal) return;
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    if (btn) btn.addEventListener('click', open);
+    if (closeBtn) closeBtn.addEventListener('click', close);
+    if (modal) {
+      modal.addEventListener('click', function (e) {
+        // close on backdrop click (not on inner card)
+        if (e.target === modal) close();
+      });
+    }
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) close();
+      // Cmd/Ctrl+K to open
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        if (modal && modal.classList.contains('hidden')) open();
+        else close();
+      }
+    });
+  })();
+</script>
+
+<style is:global>
+  /* Make Pagefind UI match the site theme */
+  .pagefind-container .pagefind-ui__form {
+    background: transparent;
+  }
+  .pagefind-container .pagefind-ui__search-input {
+    font-family: inherit;
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+    border: 1px solid rgb(203 213 225);
+    background: white;
+    width: 100%;
+  }
+  .dark .pagefind-container .pagefind-ui__search-input {
+    background: rgb(30 41 59);
+    border-color: rgb(51 65 85);
+    color: white;
+  }
+  .pagefind-container .pagefind-ui__results-area {
+    margin-top: 1rem;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  .pagefind-container .pagefind-ui__result {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgb(226 232 240);
+  }
+  .dark .pagefind-container .pagefind-ui__result {
+    border-bottom-color: rgb(51 65 85);
+  }
+  .pagefind-container .pagefind-ui__result-title a {
+    color: rgb(2 132 199);
+    text-decoration: none;
+  }
+  .pagefind-container .pagefind-ui__result-title a:hover {
+    text-decoration: underline;
+  }
+  .pagefind-container .pagefind-ui__result-excerpt {
+    color: rgb(71 85 105);
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+  .dark .pagefind-container .pagefind-ui__result-excerpt {
+    color: rgb(148 163 184);
+  }
+  .pagefind-container .pagefind-ui__message {
+    color: rgb(100 116 139);
+    font-size: 0.875rem;
+    padding: 0.5rem 0;
+  }
+</style>
