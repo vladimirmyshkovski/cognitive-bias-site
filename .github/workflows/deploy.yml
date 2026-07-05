@@ -44,7 +44,7 @@ jobs:
         run: npm run build
         working-directory: site
         env:
-          CONTENT_PATH: ${{ github.workspace }}/encyclopedia/ru/5. Каталог
+          CONTENT_PATH: ${{ github.workspace }}/encyclopedia
 
       - name: Build Pagefind search index
         run: npx pagefind --site dist
