@@ -10,8 +10,9 @@ interface Props {
 }
 
 const { title, description, category, slug, image } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const canonical = new URL(Astro.url.pathname, Astro.site).toString();
-const ogImage = image || `/og/${slug || 'default'}.png`;
+const ogImage = image || `${base}og/${slug || 'default'}.png`;
 const ogImageUrl = new URL(ogImage, Astro.site).toString();
 const isBiasPage = !!category;
 void isBiasPage;
@@ -39,7 +40,7 @@ const jsonLd = isBiasPage
       url: Astro.site,
       potentialAction: {
         '@type': 'SearchAction',
-        target: `${Astro.site}search?q={query}`,
+        target: `${Astro.site}${base}search?q={query}`,
         'query-input': 'required name=query',
       },
     };
@@ -81,8 +82,8 @@ const jsonLd = isBiasPage
     />
 
     <!-- Pagefind UI (search) -->
-    <link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
-    <script is:inline src="/pagefind/pagefind-ui.js"></script>
+    <link href={`${base}pagefind/pagefind-ui.css`} rel="stylesheet" />
+    <script is:inline src={`${base}pagefind/pagefind-ui.js`}></script>
   </head>
   <body class="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-50">
     <slot />

@@ -102,8 +102,12 @@ export async function loadAllBiases(): Promise<ParsedBias[]> {
     try {
       const content = await readFile(filepath, 'utf-8');
       const parsed = parseBiasContent(content);
+      const slug = basename(file, '.md')
+        .toLowerCase()
+        .replace(/[^a-z0-9а-яё]+/g, '-')
+        .replace(/^-|-$/g, '');
       biases.push({
-        slug: basename(file, '.md'),
+        slug,
         ...parsed,
       });
     } catch (err) {

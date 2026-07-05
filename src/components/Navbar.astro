@@ -1,12 +1,13 @@
 ---
 const path = Astro.url.pathname;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 ---
 
 <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50">
   <div class="container mx-auto px-4">
     <div class="flex items-center justify-between h-16">
       <!-- Logo -->
-      <a href="/" class="flex items-center gap-2 font-bold text-lg text-primary-600">
+      <a href={base} class="flex items-center gap-2 font-bold text-lg text-primary-600">
         <span aria-hidden="true">🧠</span>
         <span class="hidden sm:inline">Cognitive Bias Encyclopedia</span>
         <span class="sm:hidden">CBE</span>
@@ -15,19 +16,19 @@ const path = Astro.url.pathname;
       <!-- Desktop nav -->
       <nav class="hidden lg:flex items-center gap-6" aria-label="Главная навигация">
         <a
-          href="/"
-          class={`hover:text-primary-600 ${path === '/' ? 'text-primary-600 font-medium' : ''}`}
-          aria-current={path === '/' ? 'page' : undefined}
+          href={base}
+          class={`hover:text-primary-600 ${path === base ? 'text-primary-600 font-medium' : ''}`}
+          aria-current={path === base ? 'page' : undefined}
         >Главная</a>
         <a
-          href="/biases/"
-          class={`hover:text-primary-600 ${path.startsWith('/biases') ? 'text-primary-600 font-medium' : ''}`}
-          aria-current={path.startsWith('/biases') ? 'page' : undefined}
+          href={`${base}biases/`}
+          class={`hover:text-primary-600 ${path.startsWith(`${base}biases`) ? 'text-primary-600 font-medium' : ''}`}
+          aria-current={path.startsWith(`${base}biases`) ? 'page' : undefined}
         >Каталог</a>
         <a
-          href="/categories/"
-          class={`hover:text-primary-600 ${path.startsWith('/categories') ? 'text-primary-600 font-medium' : ''}`}
-          aria-current={path.startsWith('/categories') ? 'page' : undefined}
+          href={`${base}categories/`}
+          class={`hover:text-primary-600 ${path.startsWith(`${base}categories`) ? 'text-primary-600 font-medium' : ''}`}
+          aria-current={path.startsWith(`${base}categories`) ? 'page' : undefined}
         >Категории</a>
         <a
           href="https://github.com/vladimirmyshkovski/cognitive-bias-encyclopedia"
@@ -62,15 +63,15 @@ const path = Astro.url.pathname;
           aria-label="Мобильная навигация"
         >
           <a
-            href="/"
+            href={base}
             class="block px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700"
           >Главная</a>
           <a
-            href="/biases/"
+            href={`${base}biases/`}
             class="block px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700"
           >Каталог</a>
           <a
-            href="/categories/"
+            href={`${base}categories/`}
             class="block px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700"
           >Категории</a>
           <hr class="my-2 border-slate-200 dark:border-slate-700" />

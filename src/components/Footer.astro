@@ -1,5 +1,6 @@
 ---
 const year = new Date().getFullYear();
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 ---
 
 <footer class="bg-slate-100 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 mt-16">
@@ -14,17 +15,17 @@ const year = new Date().getFullYear();
       <div>
         <h3 class="font-bold mb-2">Ресурсы</h3>
         <ul class="space-y-1 text-slate-600 dark:text-slate-400">
-          <li><a href="/llms.txt" class="hover:text-primary-600">llms.txt</a> — для AI-агентов</li>
-          <li><a href="/llms-full.txt" class="hover:text-primary-600">llms-full.txt</a> — полный текст</li>
-          <li><a href="/sitemap-index.xml" class="hover:text-primary-600">Sitemap</a></li>
+          <li><a href={`${base}llms.txt`} class="hover:text-primary-600">llms.txt</a> — для AI-агентов</li>
+          <li><a href={`${base}llms-full.txt`} class="hover:text-primary-600">llms-full.txt</a> — полный текст</li>
+          <li><a href={`${base}sitemap-index.xml`} class="hover:text-primary-600">Sitemap</a></li>
         </ul>
       </div>
       <div>
         <h3 class="font-bold mb-2">Источник</h3>
         <ul class="space-y-1 text-slate-600 dark:text-slate-400">
           <li><a href="https://github.com/vladimirmyshkovski/cognitive-bias-encyclopedia" class="hover:text-primary-600" rel="noopener external" target="_blank">GitHub репозиторий ↗</a></li>
-          <li><a href="/CONTRIBUTING" class="hover:text-primary-600">CONTRIBUTING.md</a></li>
-          <li>Лицензия: <a href="/LICENSE" class="hover:text-primary-600">CC BY-SA 4.0</a></li>
+          <li><a href={`${base}CONTRIBUTING`} class="hover:text-primary-600">CONTRIBUTING.md</a></li>
+          <li>Лицензия: <a href={`${base}LICENSE`} class="hover:text-primary-600">CC BY-SA 4.0</a></li>
         </ul>
       </div>
     </div>
