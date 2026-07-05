@@ -47,8 +47,7 @@ jobs:
           CONTENT_PATH: ${{ github.workspace }}/encyclopedia
 
       - name: Build Pagefind search index
-        run: npx pagefind --site dist
-        working-directory: site
+        run: npx pagefind --site ${{ github.workspace }}/site/dist
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
