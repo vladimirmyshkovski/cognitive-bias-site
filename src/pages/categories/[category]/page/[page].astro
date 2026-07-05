@@ -1,0 +1,96 @@
+---
+import { loadAllBiases } from '../../../../lib/biases';
+import { renderMarkdown } from '../../../../lib/markdown';
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import Navbar from '../../../../components/Navbar.astro';
+import Footer from '../../../../components/Footer.astro';
+import Pagination from '../../../../components/Pagination.astro';
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+
+export async function getStaticPaths({ paginate }: any) {
+  const PAGE_SIZE = 24;
+  const biases = await loadAllBiases();
+  const byCategory: Record<string, typeof biases> = {};
+  for (const b of biases) {
+    const cat = b.category || 'other';
+    if (!byCategory[cat]) byCategory[cat] = [];
+    byCategory[cat].push(b);
+  }
+  const paths: any[] = [];
+  for (const [category, items] of Object.entries(byCategory)) {
+    items.sort((a, b) => a.title.localeCompare(b.title, 'ru'));
+    // For categories with only 1 page, no /page/N/ routes are generated
+    const totalPages = Math.ceil(items.length / PAGE_SIZE);
+    if (totalPages <= 1) continue;
+    for (const p of paginate(items, { pageSize: PAGE_SIZE })) {
+      // Skip page 1 — served by /categories/[category]/index.astro
+      if (p.props.page.currentPage <= 1) continue;
+      paths.push({
+        params: { category, ...p.params },
+        props: { ...p.props, category },
+      });
+    }
+  }
+  return paths;
+}
+
+const { page, category } = Astro.props as {
+  page: { data: any[]; currentPage: number; lastPage: number; total: number };
+  category: string;
+};
+
+const biases = page.data;
+const currentPage = page.currentPage;
+const totalPages = page.lastPage;
+const total = page.total;
+const displayStart = (currentPage - 1) * 24 + 1;
+const displayEnd = Math.min(displayStart + biases.length - 1, total);
+
+const itemsWithHtml = await Promise.all(
+  biases.map(async (b) => ({
+    ...b,
+    descriptionHtml: await renderMarkdown(b.description),
+  }))
+);
+---
+
+<BaseLayout
+  title={`${category} — когнитивные искажения, стр. ${currentPage}`}
+  description={`Когнитивные искажения в категории «${category}»: стр. ${currentPage} из ${totalPages} (${total} записей).`}
+  category={category}
+>
+  <Navbar />
+  <main class="container mx-auto px-4 py-8">
+    <nav class="text-sm mb-4 flex gap-3">
+      <a href={`${base}categories/`} class="text-primary-600 hover:underline">← Все категории</a>
+      <a href={`${base}categories/${category}/`} class="text-primary-600 hover:underline">↑ {category}</a>
+    </nav>
+    <h1 class="text-3xl font-bold mb-2 capitalize">{category}</h1>
+    <p class="text-slate-600 dark:text-slate-300 mb-6">
+      Показаны {displayStart}–{displayEnd} из {total} записей (стр. {currentPage} из {totalPages})
+    </p>
+
+    <ul class="space-y-3">
+      {itemsWithHtml.map((b) => (
+        <li>
+          <a
+            href={`${base}biases/${b.slug}/`}
+            class="block p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md hover:border-primary-500"
+          >
+            <h2 class="font-bold mb-1">{b.title}</h2>
+            <p class="text-sm text-slate-600 dark:text-slate-400 line-clamp-2" set:html={b.descriptionHtml} />
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <Pagination
+      currentPage={currentPage}
+      totalPages={totalPages}
+      baseUrl={`${base}categories/${category}/`}
+      base={base}
+    />
+  </main>
+  <Footer />
+</BaseLayout>
