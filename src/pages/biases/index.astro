@@ -1,0 +1,38 @@
+---
+import { loadAllBiases } from '../../lib/biases';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+
+const biases = await loadAllBiases();
+---
+
+<BaseLayout
+  title="Каталог когнитивных искажений"
+  description={`Полный каталог из ${biases.length} когнитивных искажений, структурированных по функциям.`}
+>
+  <Navbar />
+  <main class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-2">Каталог искажений</h1>
+    <p class="text-slate-600 dark:text-slate-300 mb-8">
+      {biases.length} записей в 6 категориях
+    </p>
+
+    <ul class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      {biases.map((b) => (
+        <li>
+          <a
+            href={`/biases/${b.slug}/`}
+            class="block p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md hover:border-primary-500 transition-colors"
+          >
+            <span class="inline-block text-xs px-2 py-0.5 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 rounded mb-1 capitalize">
+              {b.category}
+            </span>
+            <h2 class="font-bold text-sm">{b.title}</h2>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </main>
+  <Footer />
+</BaseLayout>

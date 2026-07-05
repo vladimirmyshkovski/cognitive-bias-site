@@ -1,0 +1,107 @@
+---
+const path = Astro.url.pathname;
+---
+
+<header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50">
+  <div class="container mx-auto px-4">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo -->
+      <a href="/" class="flex items-center gap-2 font-bold text-lg text-primary-600">
+        <span aria-hidden="true">🧠</span>
+        <span class="hidden sm:inline">Cognitive Bias Encyclopedia</span>
+        <span class="sm:hidden">CBE</span>
+      </a>
+
+      <!-- Desktop nav -->
+      <nav class="hidden lg:flex items-center gap-6" aria-label="Главная навигация">
+        <a
+          href="/"
+          class={`hover:text-primary-600 ${path === '/' ? 'text-primary-600 font-medium' : ''}`}
+          aria-current={path === '/' ? 'page' : undefined}
+        >Главная</a>
+        <a
+          href="/biases/"
+          class={`hover:text-primary-600 ${path.startsWith('/biases') ? 'text-primary-600 font-medium' : ''}`}
+          aria-current={path.startsWith('/biases') ? 'page' : undefined}
+        >Каталог</a>
+        <a
+          href="/categories/"
+          class={`hover:text-primary-600 ${path.startsWith('/categories') ? 'text-primary-600 font-medium' : ''}`}
+          aria-current={path.startsWith('/categories') ? 'page' : undefined}
+        >Категории</a>
+        <a
+          href="https://github.com/vladimirmyshkovski/cognitive-bias-encyclopedia"
+          class="hover:text-primary-600"
+          rel="noopener external"
+          target="_blank"
+        >GitHub ↗</a>
+      </nav>
+
+      <!-- Search button (desktop) -->
+      <button
+        id="search-btn"
+        type="button"
+        class="hidden lg:flex items-center gap-2 px-3 py-1.5 text-sm bg-slate-100 dark:bg-slate-700 rounded-md hover:bg-slate-200 dark:hover:bg-slate-600"
+        aria-label="Поиск"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <span>Поиск...</span>
+      </button>
+
+      <!-- Mobile menu (CSS-only via <details>) -->
+      <details class="lg:hidden relative">
+        <summary
+          class="list-none cursor-pointer p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700"
+          aria-label="Меню"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </summary>
+
+        <nav
+          class="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md shadow-lg p-2"
+          aria-label="Мобильная навигация"
+        >
+          <a
+            href="/"
+            class="block px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700"
+          >Главная</a>
+          <a
+            href="/biases/"
+            class="block px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700"
+          >Каталог</a>
+          <a
+            href="/categories/"
+            class="block px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700"
+          >Категории</a>
+          <hr class="my-2 border-slate-200 dark:border-slate-700" />
+          <a
+            href="https://github.com/vladimirmyshkovski/cognitive-bias-encyclopedia"
+            class="block px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700"
+            rel="noopener external"
+            target="_blank"
+          >GitHub ↗</a>
+        </nav>
+      </details>
+    </div>
+  </div>
+</header>
+
+<script is:inline>
+  // Search modal (vanilla JS, progressive enhancement)
+  (function () {
+    const btn = document.getElementById('search-btn');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      // @ts-ignore
+      if (window.PagefindUI) {
+        // @ts-ignore
+        new window.PagefindUI({
+          element: 'body',
+          showSubResults: true,
+          showImages: false,
+          resetStyles: false,
+        });
+      }
+    });
+  })();
+</script>

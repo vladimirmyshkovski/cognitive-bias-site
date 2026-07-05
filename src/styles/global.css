@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Prose tweaks for better readability */
+.prose {
+  @apply text-slate-800 dark:text-slate-200 leading-relaxed;
+}
+
+.prose h2 {
+  @apply text-2xl font-bold mt-8 mb-3 text-slate-900 dark:text-slate-50;
+}
+
+.prose h3 {
+  @apply text-xl font-bold mt-6 mb-2 text-slate-900 dark:text-slate-50;
+}
+
+.prose p {
+  @apply my-4;
+}
+
+.prose ul,
+.prose ol {
+  @apply my-4 ml-6;
+}
+
+.prose ul {
+  @apply list-disc;
+}
+
+.prose ol {
+  @apply list-decimal;
+}
+
+.prose li {
+  @apply my-1;
+}
+
+.prose a {
+  @apply text-primary-600 hover:underline;
+}
+
+.prose blockquote {
+  @apply border-l-4 border-slate-300 dark:border-slate-600 pl-4 my-4 italic;
+}
+
+.prose code {
+  @apply bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-sm;
+}
+
+.prose pre {
+  @apply bg-slate-900 text-slate-50 p-4 rounded-md overflow-x-auto my-4;
+}
+
+.prose pre code {
+  @apply bg-transparent p-0;
+}
+
+.prose strong {
+  @apply font-bold;
+}
+
+.prose hr {
+  @apply my-8 border-slate-200 dark:border-slate-700;
+}
+
+/* Line clamp utility */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Pagefind search modal customization */
+#pagefind-ui {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  display: none;
+}

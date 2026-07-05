@@ -1,0 +1,55 @@
+---
+import { loadAllBiases } from '../../lib/biases';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+
+export async function getStaticPaths() {
+  const biases = await loadAllBiases();
+  const byCategory: Record<string, typeof biases> = {};
+  for (const b of biases) {
+    const cat = b.category || 'other';
+    if (!byCategory[cat]) byCategory[cat] = [];
+    byCategory[cat].push(b);
+  }
+  return Object.entries(byCategory).map(([category, items]) => ({
+    params: { category },
+    props: { category, items },
+  }));
+}
+
+const { category, items } = Astro.props;
+items.sort((a, b) => a.title.localeCompare(b.title));
+---
+
+<BaseLayout
+  title={`${category} — когнитивные искажения`}
+  description={`Когнитивные искажения в категории «${category}»: ${items.length} записей.`}
+  category={category}
+>
+  <Navbar />
+  <main class="container mx-auto px-4 py-8">
+    <nav class="text-sm mb-4">
+      <a href="/biases/" class="text-primary-600 hover:underline">← Все категории</a>
+    </nav>
+    <h1 class="text-3xl font-bold mb-2 capitalize">{category}</h1>
+    <p class="text-slate-600 dark:text-slate-300 mb-6">{items.length} записей</p>
+
+    <ul class="space-y-3">
+      {items.map((b) => (
+        <li>
+          <a
+            href={`/biases/${b.slug}/`}
+            class="block p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md hover:border-primary-500"
+          >
+            <h2 class="font-bold mb-1">{b.title}</h2>
+            <p class="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
+              {b.description}
+            </p>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </main>
+  <Footer />
+</BaseLayout>

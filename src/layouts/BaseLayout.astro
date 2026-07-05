@@ -1,0 +1,90 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  category?: string;
+  slug?: string;
+  image?: string;
+}
+
+const { title, description, category, slug, image } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site).toString();
+const ogImage = image || `/og/${slug || 'default'}.png`;
+const ogImageUrl = new URL(ogImage, Astro.site).toString();
+const isBiasPage = !!category;
+void isBiasPage;
+
+const jsonLd = isBiasPage
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: title,
+      description: description,
+      articleSection: category,
+      inLanguage: 'ru-RU',
+      url: canonical,
+      isPartOf: {
+        '@type': 'WebSite',
+        name: 'Cognitive Bias Encyclopedia',
+        url: Astro.site,
+      },
+    }
+  : {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'Cognitive Bias Encyclopedia',
+      description: 'Open encyclopedia of cognitive biases',
+      url: Astro.site,
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: `${Astro.site}search?q={query}`,
+        'query-input': 'required name=query',
+      },
+    };
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} | Cognitive Bias Encyclopedia</title>
+    <meta name="description" content={description} />
+
+    <!-- Canonical -->
+    <link rel="canonical" href={canonical} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content={isBiasPage ? 'article' : 'website'} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:site_name" content="Cognitive Bias Encyclopedia" />
+    <meta property="og:locale" content="ru_RU" />
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <!-- JSON-LD structured data -->
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+    <!-- Favicon (inline SVG) -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧠</text></svg>"
+    />
+
+    <!-- Pagefind UI (search) -->
+    <link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
+    <script src="/pagefind/pagefind-ui.js" is:inline></script>
+  </head>
+  <body class="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-50">
+    <slot />
+  </body>
+</html>

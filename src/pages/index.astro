@@ -1,0 +1,85 @@
+---
+import { loadAllBiases } from '../lib/biases';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+
+const biases = await loadAllBiases();
+
+const byCategory: Record<string, typeof biases> = {};
+for (const b of biases) {
+  const cat = b.category || 'other';
+  if (!byCategory[cat]) byCategory[cat] = [];
+  byCategory[cat].push(b);
+}
+
+const totalCount = biases.length;
+const categoryCount = Object.keys(byCategory).length;
+---
+
+<BaseLayout
+  title="Cognitive Bias Encyclopedia"
+  description={`Открытая энциклопедия когнитивных искажений: ${totalCount} записей в ${categoryCount} категориях.`}
+>
+  <Navbar />
+  <main class="container mx-auto px-4 py-8">
+    <section class="mb-12 text-center">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">
+        Cognitive Bias Encyclopedia
+      </h1>
+      <p class="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+        Открытая русскоязычная энциклопедия когнитивных искажений.
+        Каждая запись содержит определение, примеры, механизм, диалектическое зеркало
+        и философские параллели.
+      </p>
+      <div class="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm text-slate-500">
+        <span>📚 {totalCount} записей</span>
+        <span>🏷 {categoryCount} категорий</span>
+        <a href="https://github.com/vladimirmyshkovski/cognitive-bias-encyclopedia" class="hover:text-primary-600" rel="noopener" target="_blank">⭐ GitHub</a>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="text-2xl font-bold mb-6">Категории</h2>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {Object.entries(byCategory).map(([cat, items]) => (
+          <a
+            href={`/categories/${cat}/`}
+            class="block p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-primary-500 transition-colors"
+          >
+            <h3 class="text-lg font-bold capitalize mb-2">{cat}</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400">
+              {items.length} {items.length === 1 ? 'запись' : items.length < 5 ? 'записи' : 'записей'}
+            </p>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <section class="mt-12">
+      <h2 class="text-2xl font-bold mb-6">Последние добавленные</h2>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {biases.slice(-6).reverse().map((b) => (
+          <a
+            href={`/biases/${b.slug}/`}
+            class="block p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-primary-500 transition-colors"
+          >
+            <span class="inline-block text-xs px-2 py-0.5 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 rounded mb-2 capitalize">
+              {b.category}
+            </span>
+            <h3 class="font-bold mb-1">{b.title}</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400 line-clamp-3">
+              {b.description}
+            </p>
+          </a>
+        ))}
+      </div>
+      <div class="mt-6 text-center">
+        <a href="/biases/" class="inline-block px-6 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700">
+          Смотреть все →
+        </a>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</BaseLayout>
