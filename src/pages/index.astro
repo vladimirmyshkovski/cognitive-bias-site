@@ -1,10 +1,17 @@
 ---
 import { loadAllBiases } from '../lib/biases';
+import { renderMarkdown } from '../lib/markdown';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 
 const biases = await loadAllBiases();
+const recentBiases = await Promise.all(
+  biases.slice(-6).reverse().map(async (b) => ({
+    ...b,
+    descriptionHtml: await renderMarkdown(b.description),
+  }))
+);
 
 const byCategory: Record<string, typeof biases> = {};
 for (const b of biases) {
@@ -59,7 +66,7 @@ const categoryCount = Object.keys(byCategory).length;
     <section class="mt-12">
       <h2 class="text-2xl font-bold mb-6">Последние добавленные</h2>
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {biases.slice(-6).reverse().map((b) => (
+        {recentBiases.map((b) => (
           <a
             href={`/biases/${b.slug}/`}
             class="block p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-primary-500 transition-colors"
@@ -68,9 +75,7 @@ const categoryCount = Object.keys(byCategory).length;
               {b.category}
             </span>
             <h3 class="font-bold mb-1">{b.title}</h3>
-            <p class="text-sm text-slate-600 dark:text-slate-400 line-clamp-3">
-              {b.description}
-            </p>
+            <p class="text-sm text-slate-600 dark:text-slate-400 line-clamp-3" set:html={b.descriptionHtml} />
           </a>
         ))}
       </div>
