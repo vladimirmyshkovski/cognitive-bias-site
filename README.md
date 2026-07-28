@@ -13,6 +13,7 @@ The content lives in a separate repo: **[vladimirmyshkovski/cognitive-bias-encyc
 - Renders each encyclopedia entry (`ru/5. Каталог/*.md`) as a separate page
 - Catalogs at `/biases/` and `/categories/<name>/` (paginated, 24 entries per page)
 - Open Graph / Twitter meta tags for social previews (uses entry description, stripped of markdown)
+- OG images at `/og/<slug>.png` (generated post-build via `npm run og`)
 - Search powered by [Pagefind](https://pagefind.app/) — full-text search over all entries, built at static-site generation time
 - `llms.txt` and `llms-full.txt` for AI agents (auto-generated on build)
 - Sitemap at `/sitemap-index.xml`
@@ -23,6 +24,7 @@ The content lives in a separate repo: **[vladimirmyshkovski/cognitive-bias-encyc
 - **Astro** — static site generator, plain HTML/CSS, no client-side JS framework
 - **Tailwind CSS** — utility CSS, dark mode via `prefers-color-scheme`
 - **Pagefind** — static full-text search
+- **Satori + Sharp** — OG image generation (post-build, via standalone Node script)
 - **GitHub Pages** — hosting + CI/CD
 
 ## Architecture
@@ -48,32 +50,42 @@ The content lives in a separate repo: **[vladimirmyshkovski/cognitive-bias-encyc
 │   ├── lib/
 │   │   ├── biases.ts                    # Read & parse .md files
 │   │   └── markdown.ts                  # Render markdown → HTML, strip → meta
-│   └── integrations/llms.ts             # llms.txt generator
+│   ├── integrations/
+│   │   ├── llms.ts                      # llms.txt generator (Astro hook)
+│   │   └── fonts/                       # fonts used by OG image script
+│   └── content.config.ts                # Astro Content Collection schema (legacy; see migration doc)
+├── scripts/
+│   └── generate-og.ts                   # Standalone OG image generator
+├── docs/
+│   └── MIGRATION_TO_CONTENT_COLLECTIONS.md  # Plan for Astro CC migration
 └── CONTENT_PATH env var points to the encyclopedia repo
 ```
 
-The encyclopedia directory is **symlinked** (or cloned as a sibling repo in CI) at the path pointed to by `CONTENT_PATH`. See [CONTRIBUTING.md](https://github.com/vladimirmyshkovski/cognitive-bias-encyclopedia/blob/main/CONTRIBUTING.md) in the content repo for the entry template.
+The encyclopedia directory is **cloned as a sibling repo** in CI at the path pointed to by `CONTENT_PATH`. See [CONTRIBUTING.md](https://github.com/vladimirmyshkovski/cognitive-bias-encyclopedia/blob/main/ru/CONTRIBUTING.md) in the content repo for the entry template.
 
 ## Local development
 
 ```bash
-# One-time: link or clone the encyclopedia content
-CONTENT_PATH="/home/user/Obsidian/Энциклопедии/Энциклопедия когнитивных искажений" \
-  npm install
+# Clone the encyclopedia content into a sibling directory
+git clone https://github.com/vladimirmyshkovski/cognitive-bias-encyclopedia ~/content
+
+# Install deps
+npm install
 
 # Build (outputs to dist/)
-CONTENT_PATH="..." npm run build
+CONTENT_PATH=~/content npm run build
+
+# Generate OG images
+CONTENT_PATH=~/content npm run og
+
+# Or do both at once
+CONTENT_PATH=~/content npm run build:full
 
 # Preview built site
 npm run preview
 ```
 
-To work on the live content, point `CONTENT_PATH` at your local clone of the encyclopedia repo:
-
-```bash
-git clone https://github.com/vladimirmyshkovski/cognitive-bias-encyclopedia ~/content
-CONTENT_PATH=~/content npm run build
-```
+To work on the live content, point `CONTENT_PATH` at your local clone of the encyclopedia repo.
 
 ## Deployment
 
@@ -82,14 +94,18 @@ GitHub Actions (`.github/workflows/deploy.yml`) on every push to `master`:
 1. Check out this repo
 2. Check out the encyclopedia repo as a sibling directory
 3. `npm ci`
-4. Build with the encyclopedia as `CONTENT_PATH`
-5. Deploy `dist/` to GitHub Pages
+4. Build with the encyclopedia as `CONTENT_PATH` (generates `dist/`)
+5. Generate OG images (`npm run og`, copies to `dist/og/`)
+6. Build Pagefind search index
+7. Deploy `dist/` to GitHub Pages
 
 The site URL is configured via `astro.config.mjs → site` and `base: '/cognitive-bias-site'`.
 
 ## Adding new entries
 
-You don't — content lives in the encyclopedia repo. Add a new file at `ru/5. Каталog/<English name>.md` there following the [AGENTS.md](https://github.com/vladimirmyshkovski/cognitive-bias-encyclopedia/blob/main/ru/AGENTS.md) template. The site rebuilds on the next push to that repo (via an empty commit trigger here, until cross-repo triggers are wired up).
+You don't — content lives in the encyclopedia repo. Add a new file at `ru/5. Каталог/<English name>.md` there following the [CONTRIBUTING.md](https://github.com/vladimirmyshkovski/cognitive-bias-encyclopedia/blob/main/ru/CONTRIBUTING.md) template.
+
+**Deployment from content changes:** currently requires an empty commit in this repo to re-trigger GitHub Actions, because the build workflow listens to `master` here, not to `main` in the encyclopedia repo. To automate, add a `repository_dispatch` webhook from the encyclopedia repo to this one (out of scope for now).
 
 ## License
 

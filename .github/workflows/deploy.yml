@@ -46,6 +46,12 @@ jobs:
         env:
           CONTENT_PATH: ${{ github.workspace }}/encyclopedia
 
+      - name: Generate OG images
+        run: npm run og
+        working-directory: site
+        env:
+          CONTENT_PATH: ${{ github.workspace }}/encyclopedia
+
       - name: Build Pagefind search index
         run: npx pagefind --site ${{ github.workspace }}/site/dist
 
