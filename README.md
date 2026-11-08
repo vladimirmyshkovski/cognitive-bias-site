@@ -14,7 +14,7 @@ The content lives in a separate repo: **[vladimirmyshkovski/cognitive-bias-encyc
 - Catalogs at `/biases/` and `/categories/<name>/` (paginated, 24 entries per page)
 - Open Graph / Twitter meta tags for social previews (uses entry description, stripped of markdown)
 - OG images at `/og/<slug>.png` (generated post-build via `npm run og`)
-- Search powered by [Pagefind](https://pagefind.app/) — full-text search over all entries, built at static-site generation time
+- Search powered by [Pagefind](https://pagefind.app/) — full-text search over all entries, built at static-site generation time; available as a modal (⌘K / Ctrl+K) and as a dedicated page at `/search/` (`?q=` is accepted)
 - `llms.txt` and `llms-full.txt` for AI agents (auto-generated on build)
 - Sitemap at `/sitemap-index.xml`
 - Russian UI, semantically correct HTML, keyboard-navigable
@@ -36,6 +36,7 @@ The content lives in a separate repo: **[vladimirmyshkovski/cognitive-bias-encyc
 ├── src/
 │   ├── pages/
 │   │   ├── index.astro                  # Home
+│   │   ├── search.astro                 # Dedicated search page (?q=)
 │   │   ├── biases/
 │   │   │   ├── index.astro              # Catalog (page 1)
 │   │   │   ├── page/[page].astro        # Catalog pages 2+
@@ -45,19 +46,23 @@ The content lives in a separate repo: **[vladimirmyshkovski/cognitive-bias-encyc
 │   │       ├── [category]/index.astro   # Category page 1
 │   │       └── [category]/page/[page].astro  # Category pages 2+
 │   ├── components/
-│   │   ├── Navbar.astro, Footer.astro, Search.astro, Pagination.astro
+│   │   ├── Navbar.astro, Footer.astro, Pagination.astro
+│   │   ├── Search.astro                 # Search modal (not on /search/)
+│   │   └── SearchPage.astro             # Search UI for /search/
 │   ├── layouts/BaseLayout.astro         # HTML shell, meta tags, JSON-LD
 │   ├── lib/
-│   │   ├── biases.ts                    # Read & parse .md files
+│   │   ├── biases.ts                    # Read & parse .md files (cached per build)
 │   │   └── markdown.ts                  # Render markdown → HTML, strip → meta
 │   ├── integrations/
 │   │   ├── llms.ts                      # llms.txt generator (Astro hook)
 │   │   └── fonts/                       # fonts used by OG image script
-│   └── content.config.ts                # Astro Content Collection schema (legacy; see migration doc)
+│   └── styles/global.css               # Tailwind + Pagefind UI overrides
 ├── scripts/
-│   └── generate-og.ts                   # Standalone OG image generator
+│   ├── generate-og.ts                   # Standalone OG image generator
+│   └── check-lib.ts                    # Self-checks for parsing & rendering (npm run check)
 ├── docs/
-│   └── MIGRATION_TO_CONTENT_COLLECTIONS.md  # Plan for Astro CC migration
+│   ├── MIGRATION_TO_CONTENT_COLLECTIONS.md  # Plan for Astro CC migration
+│   └── ISSUES.md                            # Tracker of known problems
 └── CONTENT_PATH env var points to the encyclopedia repo
 ```
 
@@ -80,6 +85,12 @@ CONTENT_PATH=~/content npm run og
 
 # Or do both at once
 CONTENT_PATH=~/content npm run build:full
+
+# Build the search index (needed for search to work locally)
+npm run pagefind
+
+# Self-checks for parsing and markdown rendering
+CONTENT_PATH=~/content npm run check
 
 # Preview built site
 npm run preview
