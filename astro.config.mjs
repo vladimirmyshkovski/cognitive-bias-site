@@ -1,7 +1,6 @@
 import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
-import { fileURLToPath } from 'node:url';
 import { llmsIntegration } from './src/integrations/llms';
 
 const CONTENT_PATH =
@@ -18,14 +17,6 @@ export default defineConfig({
     sitemap(),
     llmsIntegration({ contentPath: CONTENT_PATH }),
   ],
-
-  vite: {
-    resolve: {
-      alias: {
-        '@content': fileURLToPath(new URL(CONTENT_PATH, import.meta.url)),
-      },
-    },
-  },
 
   build: {
     format: 'directory',
