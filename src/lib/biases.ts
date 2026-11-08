@@ -24,6 +24,9 @@ const FRONTMATTER_RE = /\*\*Status:\*\*[^\n]*\n\*\*Date:\*\*[^\n]*\n\*\*Domain:\
 const ALIASES_RE = /\*\*Также известно как:\*\*\s*([^\n]+)/;
 const CATEGORY_RE = /\*\*Категория:\*\*\s*(\S+)/;
 
+/** Каталог читается с диска один раз за процесс — сборка дёргает его из каждой страницы. */
+let cache: ParsedBias[] | null = null;
+
 export function parseBiasContent(content: string): Omit<ParsedBias, 'slug'> {
   const titleMatch = content.match(FRONTMATTER_RE);
   if (!titleMatch) {
@@ -88,6 +91,15 @@ export function parseBiasContent(content: string): Omit<ParsedBias, 'slug'> {
 }
 
 export async function loadAllBiases(): Promise<ParsedBias[]> {
+  if (!cache) {
+    cache = await readCatalog();
+  }
+  // Копия на выходе: вызывающие страницы сортируют массив на месте
+  // (allBiases.sort(...)), и общий кеш от этого не должен зависеть.
+  return cache.map((b) => ({ ...b, aliases: [...b.aliases] }));
+}
+
+async function readCatalog(): Promise<ParsedBias[]> {
   const contentPath = process.env.CONTENT_PATH;
   if (!contentPath) {
     throw new Error('CONTENT_PATH env variable is not set');
