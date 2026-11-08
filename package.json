@@ -12,6 +12,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "og": "node --experimental-strip-types scripts/generate-og.ts",
+    "check": "node --experimental-strip-types scripts/check-lib.ts",
     "build:full": "astro build && npm run og",
     "pagefind": "pagefind --site dist"
   },
