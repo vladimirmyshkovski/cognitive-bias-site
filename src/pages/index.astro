@@ -8,8 +8,17 @@ import Footer from '../components/Footer.astro';
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const biases = await loadAllBiases();
 const slugs = slugSet(biases);
+
+// Новые записи — по дате из header'а. Раньше здесь стоял biases.slice(-6)
+// по массиву, отсортированному по алфавиту, то есть «последние 6 по
+// алфавиту», а не новые. При равных датах (они проставляются пачками)
+// порядок определяется алфавитом.
+const byDateDesc = [...biases].sort((a, b) => {
+  const byDate = (b.date ?? '').localeCompare(a.date ?? '');
+  return byDate !== 0 ? byDate : a.title.localeCompare(b.title, 'ru');
+});
 const recentBiases = await Promise.all(
-  biases.slice(-6).reverse().map(async (b) => ({
+  byDateDesc.slice(0, 6).map(async (b) => ({
     ...b,
     descriptionHtml: await renderMarkdown(b.description, base, slugs),
   }))
