@@ -9,11 +9,10 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build",
+    "build": "astro build && npm run og",
     "preview": "astro preview",
-    "og": "node --experimental-strip-types scripts/generate-og.ts",
-    "check": "node --experimental-strip-types scripts/check-lib.ts",
-    "build:full": "astro build && npm run og",
+    "og": "node --env-file-if-exists=.env --experimental-strip-types scripts/generate-og.ts",
+    "check": "node --env-file-if-exists=.env --experimental-strip-types scripts/check-lib.ts",
     "pagefind": "pagefind --site dist"
   },
   "dependencies": {

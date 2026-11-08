@@ -77,14 +77,11 @@ git clone https://github.com/vladimirmyshkovski/cognitive-bias-encyclopedia ~/co
 # Install deps
 npm install
 
-# Build (outputs to dist/)
+# Build (outputs to dist/): pages + llms.txt + sitemap + OG images
 CONTENT_PATH=~/content npm run build
 
-# Generate OG images
+# Generate OG images only (writes into dist/og/, requires a finished build)
 CONTENT_PATH=~/content npm run og
-
-# Or do both at once
-CONTENT_PATH=~/content npm run build:full
 
 # Build the search index (needed for search to work locally)
 npm run pagefind
@@ -97,6 +94,12 @@ npm run preview
 ```
 
 To work on the live content, point `CONTENT_PATH` at your local clone of the encyclopedia repo.
+Put that path in `.env` (`CONTENT_PATH=...`) instead of exporting it on every command — both the
+Astro build and the standalone scripts read it from there. An exported `CONTENT_PATH` always
+wins over the value in `.env`, which is what CI relies on.
+
+`npm run build` produces a **complete** site: OG images are generated as part of it, and the
+build fails if any image fails to render — so a broken `og:image` can never reach production.
 
 ## Deployment
 

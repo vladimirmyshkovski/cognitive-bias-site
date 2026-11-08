@@ -173,9 +173,13 @@ async function main() {
     console.log('[og] ✓ Generated default.png');
   } catch (err) {
     console.warn(`[og] Default failed: ${(err as Error).message}`);
+    failed++;
   }
 
   console.log(`[og] Done: ${success} succeeded, ${failed} failed`);
+  // Сборка идёт как `astro build && npm run og`, поэтому падение здесь
+  // должно ронять сборку: иначе на сайт уедут битые og:image (404).
+  if (failed > 0) process.exit(1);
 }
 
 main().catch((err) => {
