@@ -1,5 +1,5 @@
 ---
-import { loadAllBiases } from '../../../lib/biases';
+import { loadAllBiases, slugSet } from '../../../lib/biases';
 import { renderMarkdown } from '../../../lib/markdown';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import Navbar from '../../../components/Navbar.astro';
@@ -34,11 +34,12 @@ const currentPage = 1;
 const pageItems = items.slice(0, PAGE_SIZE);
 const displayStart = 1;
 const displayEnd = pageItems.length;
+const slugs = slugSet(await loadAllBiases());
 
 const itemsWithHtml = await Promise.all(
   pageItems.map(async (b) => ({
     ...b,
-    descriptionHtml: await renderMarkdown(b.description, base),
+    descriptionHtml: await renderMarkdown(b.description, base, slugs),
   }))
 );
 ---

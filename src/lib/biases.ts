@@ -130,6 +130,11 @@ async function readCatalog(): Promise<ParsedBias[]> {
   return biases.sort((a, b) => a.title.localeCompare(b.title));
 }
 
+/** Slugs всех записей каталога — для разрешения wiki-ссылок в ссылки. */
+export function slugSet(biases: ParsedBias[]): Set<string> {
+  return new Set(biases.map((b) => b.slug));
+}
+
 export async function loadBiasBySlug(slug: string): Promise<ParsedBias | null> {
   const all = await loadAllBiases();
   return all.find((b) => b.slug === slug) || null;

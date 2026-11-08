@@ -1,5 +1,5 @@
 ---
-import { loadAllBiases } from '../../lib/biases';
+import { loadAllBiases, slugSet } from '../../lib/biases';
 import { renderMarkdown } from '../../lib/markdown';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Navbar from '../../components/Navbar.astro';
@@ -16,8 +16,9 @@ export async function getStaticPaths() {
 }
 
 const { bias } = Astro.props;
-const html = await renderMarkdown(bias.body, base);
-const descriptionHtml = bias.description ? await renderMarkdown(bias.description, base) : '';
+const slugs = slugSet(await loadAllBiases());
+const html = await renderMarkdown(bias.body, base, slugs);
+const descriptionHtml = bias.description ? await renderMarkdown(bias.description, base, slugs) : '';
 ---
 
 <BaseLayout

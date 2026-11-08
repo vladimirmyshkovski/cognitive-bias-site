@@ -6,14 +6,15 @@
  * @param base - Site base path (e.g. '/cognitive-bias-site/'). All internal links
  *               (catalog wiki-links) are prefixed with this. Required — pass
  *               `import.meta.env.BASE_URL.replace(/\/?$/, '/')` from .astro files.
- * @param knownSlugs - Optional set of catalog slugs. Wiki-links pointing at
- *               non-catalog entries (e.g. [[Диалектическое мышление]]) are
- *               rendered as plain italic text instead of broken links.
+ * @param knownSlugs - Slugs of all catalog entries. A wiki-link whose target
+ *               resolves to one of them becomes a link to `/biases/<slug>/`;
+ *               anything else (e.g. [[Диалектическое мышление]]) is rendered as
+ *               plain italic text instead of a broken link.
  */
 export async function renderMarkdown(
   md: string,
   base: string,
-  knownSlugs: Set<string> = new Set()
+  knownSlugs: Set<string>
 ): Promise<string> {
   const lines = md.split('\n');
   const out: string[] = [];
@@ -25,7 +26,7 @@ export async function renderMarkdown(
   function flushParagraph() {
     if (paragraphBuffer.length) {
       const text = paragraphBuffer.join(' ').trim();
-      if (text) out.push(`<p>${inline(text)}</p>`);
+      if (text) out.push(`<p>${inline(escapeHtml(text))}</p>`);
       paragraphBuffer = [];
     }
     inParagraph = false;
@@ -35,22 +36,17 @@ export async function renderMarkdown(
     return s
       .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
       .replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>')
-      // Catalog wiki-links with alias: [[ru/5. Каталог/Name|alias]]
-      .replace(/\[\[ru\/5\. Каталог\/([^\]|]+)\|([^\]]+)\]\]/g, (_, name, alias) =>
-        `<a href="${base}biases/${slugify(name)}/">${inline(alias)}</a>`
-      )
-      // Catalog wiki-links without alias: [[ru/5. Каталог/Name]]
-      .replace(/\[\[ru\/5\. Каталог\/([^\]]+)\]\]/g, (_, name) =>
-        `<a href="${base}biases/${slugify(name)}/">${inline(name)}</a>`
-      )
-      // Non-catalog wiki-links with alias: [[Name|alias]] — render as plain text
-      .replace(/\[\[([^\]|]+)\|([^\]]+)\]\]/g, (_, _name, alias) =>
-        `<span class="text-slate-500 italic">${inline(alias)}</span>`
-      )
-      // Non-catalog wiki-links without alias: [[Name]] — render as plain text
-      .replace(/\[\[([^\]]+)\]\]/g, (_, name) =>
-        `<span class="text-slate-500 italic">${inline(name)}</span>`
-      )
+      // Wiki-links: [[ru/5. Каталог/Name|alias]], [[Name|alias]], [[Name]]
+      .replace(/\[\[([^\[\]\n]+?)\]\]/g, (_, raw: string) => {
+        const [target, alias] = raw.split('|').map((part) => part.trim());
+        const name = target.replace(/^ru\/5\. Каталог\//, '');
+        const label = alias || name;
+        const slug = slugify(name);
+        if (knownSlugs.has(slug)) {
+          return `<a href="${base}biases/${slug}/">${inline(label)}</a>`;
+        }
+        return `<span class="text-slate-500 italic">${inline(label)}</span>`;
+      })
       // Markdown links: [text](url)
       .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
       .replace(/`([^`]+)`/g, '<code>$1</code>');
@@ -65,12 +61,12 @@ export async function renderMarkdown(
     const h3 = trimmed.match(/^###\s+(.+)$/);
     if (h2) {
       flushParagraph();
-      out.push(`<h2 id="${slugify(h2[1])}">${inline(h2[1])}</h2>`);
+      out.push(`<h2 id="${slugify(h2[1])}">${inline(escapeHtml(h2[1]))}</h2>`);
       continue;
     }
     if (h3) {
       flushParagraph();
-      out.push(`<h3 id="${slugify(h3[1])}">${inline(h3[1])}</h3>`);
+      out.push(`<h3 id="${slugify(h3[1])}">${inline(escapeHtml(h3[1]))}</h3>`);
       continue;
     }
 
@@ -85,7 +81,7 @@ export async function renderMarkdown(
     const bq = trimmed.match(/^>\s*(.*)$/);
     if (bq) {
       flushParagraph();
-      out.push(`<blockquote>${inline(bq[1])}</blockquote>`);
+      out.push(`<blockquote>${inline(escapeHtml(bq[1]))}</blockquote>`);
       continue;
     }
 
@@ -101,7 +97,7 @@ export async function renderMarkdown(
         out.push('<ul>');
         inList = true;
       }
-      out.push(`<li>${inline(ul[1])}</li>`);
+      out.push(`<li>${inline(escapeHtml(ul[1]))}</li>`);
       continue;
     }
 
@@ -117,7 +113,7 @@ export async function renderMarkdown(
         out.push('<ol>');
         inOrderedList = true;
       }
-      out.push(`<li>${inline(ol[1])}</li>`);
+      out.push(`<li>${inline(escapeHtml(ol[1]))}</li>`);
       continue;
     }
 
@@ -148,6 +144,20 @@ export async function renderMarkdown(
   if (inOrderedList) out.push('</ol>');
 
   return out.join('\n');
+}
+
+/**
+ * Escape the characters that could break out of HTML text or an attribute.
+ * Applied to the source text *before* inline() runs, so the tags inline()
+ * generates are never escaped and nested calls never escape twice.
+ */
+export function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 export function slugify(s: string): string {
