@@ -39,9 +39,11 @@ export async function renderMarkdown(
       // Wiki-links: [[ru/5. Каталог/Name|alias]], [[Name|alias]], [[Name]]
       .replace(/\[\[([^\[\]\n]+?)\]\]/g, (_, raw: string) => {
         const [target, alias] = raw.split('|').map((part) => part.trim());
-        const name = target.replace(/^ru\/5\. Каталог\//, '');
-        const label = alias || name;
-        const slug = slugify(name);
+        const escapedName = target.replace(/^ru\/5\. Каталог\//, '');
+        // slug считаем по неэкранированному имени: apostrophe в «Gambler's
+        // Fallacy» иначе превратился бы в «gambler-39-s-fallacy»
+        const slug = slugify(unescapeHtml(escapedName));
+        const label = alias || escapedName;
         if (knownSlugs.has(slug)) {
           return `<a href="${base}biases/${slug}/">${inline(label)}</a>`;
         }
@@ -158,6 +160,16 @@ export function escapeHtml(s: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+/** Reverse of escapeHtml. Needed to recover a wiki-link target from escaped text. */
+export function unescapeHtml(s: string): string {
+  return s
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, '&');
 }
 
 export function slugify(s: string): string {
