@@ -89,7 +89,7 @@ To work on the live content, point `CONTENT_PATH` at your local clone of the enc
 
 ## Deployment
 
-GitHub Actions (`.github/workflows/deploy.yml`) on every push to `master`:
+GitHub Actions (`.github/workflows/deploy.yml`) rebuilds and publishes on every push to `master`:
 
 1. Check out this repo
 2. Check out the encyclopedia repo as a sibling directory
@@ -99,13 +99,19 @@ GitHub Actions (`.github/workflows/deploy.yml`) on every push to `master`:
 6. Build Pagefind search index
 7. Deploy `dist/` to GitHub Pages
 
+The workflow also listens for `repository_dispatch` with type `content-update`, which the
+encyclopedia repo sends on every push to its `main` — so content changes publish
+automatically. This requires the `SITE_DISPATCH_TOKEN` secret in the encyclopedia repo
+(see its README). If that secret is missing, the site still deploys on manual pushes to
+`master`, but content changes need an empty commit here to trigger a rebuild.
+
 The site URL is configured via `astro.config.mjs → site` and `base: '/cognitive-bias-site'`.
 
 ## Adding new entries
 
 You don't — content lives in the encyclopedia repo. Add a new file at `ru/5. Каталог/<English name>.md` there following the [CONTRIBUTING.md](https://github.com/vladimirmyshkovski/cognitive-bias-encyclopedia/blob/main/ru/CONTRIBUTING.md) template.
 
-**Deployment from content changes:** currently requires an empty commit in this repo to re-trigger GitHub Actions, because the build workflow listens to `master` here, not to `main` in the encyclopedia repo. To automate, add a `repository_dispatch` webhook from the encyclopedia repo to this one (out of scope for now).
+**Deployment from content changes:** handled automatically — the encyclopedia repo sends a `repository_dispatch` on every push to its `main`, and the build workflow here listens for it. See [Deployment](#deployment).
 
 ## License
 
