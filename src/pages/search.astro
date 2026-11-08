@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import SearchPage from '../components/SearchPage.astro';
+---
+
+<BaseLayout
+  title="Поиск"
+  description="Полнотекстовый поиск по энциклопедии когнитивных искажений."
+>
+  <Navbar />
+  <main class="container mx-auto px-4 py-8 max-w-3xl">
+    <h1 class="text-3xl font-bold mb-2">Поиск по энциклопедии</h1>
+    <p class="text-slate-600 dark:text-slate-300 mb-8">
+      Поиск по всем записям. Запрос можно передать ссылкой: <code>?q=якорь</code>
+    </p>
+    <SearchPage />
+  </main>
+  <Footer />
+</BaseLayout>

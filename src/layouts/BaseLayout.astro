@@ -16,8 +16,10 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
 const ogImage = image || `${base}og/${slug || 'default'}.png`;
 const ogImageUrl = new URL(ogImage, Astro.site).toString();
 const isBiasPage = !!category;
-void isBiasPage;
 const metaDescription = truncateDescription(stripMarkdown(description));
+// Astro.site уже заканчивается на '/', поэтому склеивать его с base
+// без среза давало бы двойной слэш в URL.
+const siteUrl = Astro.site.toString().replace(/\/$/, '');
 
 const jsonLd = isBiasPage
   ? {
@@ -42,8 +44,8 @@ const jsonLd = isBiasPage
       url: Astro.site,
       potentialAction: {
         '@type': 'SearchAction',
-        target: `${Astro.site}${base}search?q={query}`,
-        'query-input': 'required name=query',
+        target: `${siteUrl}${base}search?q={search_term_string}`,
+        'query-input': 'required name=search_term_string',
       },
     };
 ---

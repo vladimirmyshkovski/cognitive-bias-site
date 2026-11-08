@@ -1,0 +1,54 @@
+---
+// Отдельная страница поиска (/search/) — нужна, в частности, для
+// структурированных данных SearchAction, которые должны указывать на
+// существующую страницу с результатами.
+//
+// Pagefind допускает только один экземпляр UI на страницу, поэтому на
+// /search/ модалка из Navbar не рендерится (см. Navbar.astro).
+---
+
+<div
+  id="pagefind-search-page"
+  class="pagefind-container bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4"
+></div>
+
+<script is:inline>
+  (function () {
+    var target = document.getElementById('pagefind-search-page');
+    if (!target || !window.PagefindUI) return;
+
+    var ui = new window.PagefindUI({
+      element: '#pagefind-search-page',
+      showSubResults: true,
+      showImages: false,
+      resetStyles: false,
+      autofocus: true,
+      translations: {
+        placeholder: 'Введите запрос...',
+        zero_results: 'Ничего не найдено по запросу "[SEARCH_TERM]"',
+        many_results: 'Найдено [COUNT] результатов',
+        one_result: 'Найден 1 результат',
+        searching: 'Ищу...',
+        search: 'Поиск'
+      }
+    });
+
+    // Запрос из ?q= — чтобы ссылку на поиск можно было отправить.
+    var term = new URLSearchParams(window.location.search).get('q');
+    if (term) ui.triggerSearch(term);
+
+    // Кнопка «Поиск» в шапке и Cmd/Ctrl+K фокусируют поле этой страницы.
+    var focusInput = function () {
+      var input = target.querySelector('input');
+      if (input) input.focus();
+    };
+    var btn = document.getElementById('search-btn');
+    if (btn) btn.addEventListener('click', focusInput);
+    document.addEventListener('keydown', function (e) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        focusInput();
+      }
+    });
+  })();
+</script>

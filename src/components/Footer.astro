@@ -15,6 +15,7 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
       <div>
         <h3 class="font-bold mb-2">Ресурсы</h3>
         <ul class="space-y-1 text-slate-600 dark:text-slate-400">
+          <li><a href={`${base}search/`} class="hover:text-primary-600">Страница поиска</a> — полнотекстовый поиск</li>
           <li><a href={`${base}llms.txt`} class="hover:text-primary-600">llms.txt</a> — для AI-агентов</li>
           <li><a href={`${base}llms-full.txt`} class="hover:text-primary-600">llms-full.txt</a> — полный текст</li>
           <li><a href={`${base}sitemap-index.xml`} class="hover:text-primary-600">Sitemap</a></li>
