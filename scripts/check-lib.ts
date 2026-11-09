@@ -117,6 +117,16 @@ await check('headings get an id and body text becomes a paragraph', async () => 
   assert.ok(html.includes('<p>Текст.</p>'), html);
 });
 
+await check('link URL keeps balanced parentheses (Elsevier DOI)', async () => {
+  const html = await render(
+    '[DOI](https://doi.org/10.1016/0030-5073(75)90002-1)'
+  );
+  assert.ok(
+    html.includes('<a href="https://doi.org/10.1016/0030-5073(75)90002-1">DOI</a>'),
+    html
+  );
+});
+
 console.log('');
 if (failures > 0) {
   console.error(`${failures} check(s) failed\n`);

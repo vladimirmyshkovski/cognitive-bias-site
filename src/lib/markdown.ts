@@ -49,8 +49,9 @@ export async function renderMarkdown(
         }
         return `<span class="text-slate-500 italic">${inline(label)}</span>`;
       })
-      // Markdown links: [text](url)
-      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+      // Markdown links: [text](url). URL may contain balanced parentheses —
+      // Elsevier DOIs look like 10.1016/0030-5073(75)90002-1.
+      .replace(/\[([^\]]+)\]\(((?:[^()\s]|\([^()\s]*\))+)\)/g, '<a href="$2">$1</a>')
       .replace(/`([^`]+)`/g, '<code>$1</code>');
   }
 
