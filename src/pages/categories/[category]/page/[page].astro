@@ -23,7 +23,7 @@ export async function getStaticPaths({ paginate }: any) {
     // For categories with only 1 page, no /page/N/ routes are generated
     const totalPages = Math.ceil(items.length / PAGE_SIZE);
     if (totalPages <= 1) continue;
-    for (const p of paginate(items, { pageSize: PAGE_SIZE })) {
+    for (const p of paginate(items, { pageSize: PAGE_SIZE, params: { category } })) {
       // Skip page 1 — served by /categories/[category]/index.astro
       if (p.props.page.currentPage <= 1) continue;
       paths.push({
