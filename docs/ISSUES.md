@@ -4,7 +4,7 @@
 переводится из `open` в `fixed` в том же коммите, который чинит проблему, с
 указанием коммита.
 
-Обновлён: 2026-11-09
+Обновлён: 2026-11-10
 
 ---
 
@@ -40,6 +40,7 @@
 | ISSUE-22 | content | 207 из 283 буллетов секции «Источники» в 69 записях каталога не имели ни DOI, ни ISBN, ни ссылки — источник нельзя было ни найти, ни проверить | Проставлены идентификаторы у всех 283 буллетов: `[DOI](https://doi.org/…)` для статей, `ISBN 978…` для книг, `[URL]`/`[PDF]`/`[скан]`/`[оглавление]`/`[выпуск]`/`[журнал]` — там, где DOI не существует. В `.github/scripts/validate.py` добавлена проверка «буллет без `https?://` и без `ISBN` — ошибка», так что регрессия ломает CI | 69 коммитов `docs(sources): …`, `b0ccb50` |
 | ISSUE-23 | content | 26 атрибуций в 21 записи не соответствовали зарегистрированным метаданным: журнал, том, выпуск, страницы или название — 20 случаев; 6 веб-источников не существовали; 2 ссылки указывали на несуществующие публикации | Атрибуции исправлены по метаданным DOI (проверка через `doi.org` content negotiation и Crossref). Примеры: Rosenthal & Jacobson 1968 → *The Urban Review* 3(1); Nyhan & Reifler → *Political Behavior* 32(2); Lichtenstein и Kahneman & Tversky → главы в *Judgment under Uncertainty*; Tversky & Kahneman 1983 → «Extensional versus intuitive reasoning: The conjunction fallacy» (DOI вёл на другую статью выпуска); Nisbett & Ross 1980 → монография Prentice-Hall (в *American Psychologist* 35(7) — стр. 603-683, а не 711-721); Mather et al. 2000 → 1997. Несуществующие веб-источники заменены, новые ссылки проверены — HTTP 200 | 69 коммитов `docs(sources): …`, `1a6bde5` |
 | ISSUE-25 | оба | Коммиты не учитывались в графике вкладов профиля GitHub: e-mail автора `vladimir@myshkovski.ru` не был привязан к аккаунту `vladimirmyshkovski` (в аккаунте были только `vladimirmyshkovski@gmail.com`, `12729789+vladimirmyshkovski@users.noreply.github.com` и неподтверждённый `vladimirmyshkovski@web3eco.com`). GitHub сопоставляет коммит с аккаунтом по e-mail автора, поэтому `linked GitHub user` был `None` — хотя push-события и засчитывались | E-mail добавлен в аккаунт (`POST /user/emails`), и атрибуция появилась сразу: `GET /repos/…/commits?author=vladimirmyshkovski` возвращает коммиты обоих репозиториев, а в объекте коммита `author.login` = `vladimirmyshkovski` (было `None`). Проверено на контрольном примере: `vladimirmyshkovski@web3eco.com` — тоже неподтверждённый, но добавленный в аккаунт — коммиты засчитываются, а `vladimir.myshkovski@web3.eco` (не в аккаунте) — нет, так что подтверждение e-mail не обязательно. Пересчёт календаря GitHub делает с задержкой в сутки | — |
+| ISSUE-26 | content | 26 записей очереди 🟡 среднего приоритета из `ru/4. Таксономия.md` не были написаны — покрытие 38 % от ~180 известных искажений | Очередь закрыта целиком: 25 записей добавлены по одной, каждая — отдельный коммит с подтверждёнными DOI и статьёй Wikipedia (сверка через `doi.org` CSL, Crossref и API Wikipedia); 26-я позиция («Anchoring на внимании») помечена ⚪ с указателем на `Anchoring` и `Salience Bias` — самостоятельного искажения с таким названием в литературе нет, а механизм полностью покрыт существующими записями, поэтому по правилам отбора дубли не заводятся. Покрытие 38 % → 52 % (94 записи), счётчики таксономии и README приведены в соответствие | 26 × `feat(catalog): …`, `6d9b8b4`…`3255c15` |
 
 ---
 
@@ -50,7 +51,6 @@
 | ISSUE-13 | content | 9 записей лишились ссылок на `[[Доказательство отсутствия Бога как создателя]]` с причиной «статья не существует» — но заметка **есть** в хранилище (`Наука/Философия/Доказательство отсутствия Бога как создателя.md`). Ссылку убрали ради самодостаточности репозитория, и это правильно, но записано это как «статьи нет» | ждёт решения владельца: вернуть ссылки или оставить как есть |
 | ISSUE-14 | content | Поле `Date` в записях означает «дата создания», но проставляется пачками (41 из 61 записей — `2026-07-05`). Список «Последние добавленные» сортируется по нему, поэтому при равенстве дат порядок определяется алфавитом | задача контента, не сайта: проставить записям реальные даты |
 | ISSUE-24 | content | 16 статей из 69 записей не имеют DOI: в Crossref их нет — публикации либо старше DOI-эры, либо не депонированы. Вместо DOI стоит ссылка на оглавление/скан/выпуск. Две исходные ссылки при этом указывали на несуществующие публикации: Mealy & Tenove (2020) — в *CJPS* 53(4) стр. 821-838 заняты статьёй Banting & Soroka, а записей Mealy/Tenove в Crossref нет за весь 2020 год; Nisbett & Ross (1980) — в *American Psychologist* 35(7) стр. 711-721 не существует (июль 1980 — это стр. 603-683 по ключу пагинации тома) | ждёт решения владельца: подтвердить или заменить 15 источников без DOI — Jones & Nisbett 1971, Nisbett, Wilson & Jones 1973, Nickols 1983, Klein 1958, Taylor 1965, Morewedge & Giblin 2015, Burke 1952, Harrison & Cantor 1997, Sunstein 2003, Redelmeier & Kahneman 1996, Miller & McFarland 1991, Ross 1989, Wilson & Ross 2003, Murdock 1962, Buechel et al. 2018 — и отдельно решить, что делать с Mealy & Tenove (2020) |
-| ISSUE-26 | content | 26 записей очереди 🟡 из `ru/4. Таксономия.md` (Belief Bias, Contrast Effect, Outcome Bias, Placebo Effect, IKEA Effect, Focusing Effect, Reminiscence Bump, Mood-Congruent Memory, Zeigarnik Effect, Spacing Effect, Projection Bias, Bias Blind Spot, Impact Bias, Egocentric Bias, Egocentric Empathy Gap, Cultural Bias, Cross-Race Effect, Deindividuation, Cheerleader Effect, Mob Mentality, Change Blindness, Attention Tunneling, Anchoring на внимании, Insensitivity to Sample Size, Probability Matching, Subadditivity) не написаны — покрытие 38 % от ~180 известных искажений | **В работе**: записи добавляются по одной, каждая — отдельным коммитом со ссылкой на подтверждённые DOI и статью Wikipedia. Трекер очереди — сама таксономия (`🟡`-строки) |
 
 ---
 
@@ -97,6 +97,7 @@
 | ISSUE-23 | content | 26 атрибуций, противоречащих метаданным; 6 несуществующих веб-источников | fixed | 69 × `docs(sources): …`, `1a6bde5` |
 | ISSUE-24 | content | 16 статей без DOI; у 2 исходные ссылки вели на несуществующие публикации | open | — |
 | ISSUE-25 | оба | Коммиты не попадали в график вкладов: e-mail автора не был в аккаунте | fixed | — |
+| ISSUE-26 | content | 26 записей очереди 🟡 среднего приоритета не написаны | fixed | `6d9b8b4`…`3255c15` |
 
 ---
 
