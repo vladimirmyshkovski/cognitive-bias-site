@@ -121,6 +121,27 @@ automatically. This requires the `SITE_DISPATCH_TOKEN` secret in the encyclopedi
 
 The site URL is configured via `astro.config.mjs → site` and `base: '/cognitive-bias-site'`.
 
+### If a deploy fails with "due to in progress deployment"
+
+GitHub Pages keeps publishing an artifact for a while after the workflow run is already
+marked `success`. If the next run's `actions/deploy-pages` step starts inside that window,
+the API answers HTTP 400 «Deployment request failed … due to in progress deployment» and the
+site keeps serving the previous build — content and site silently drift apart.
+
+Recovery:
+
+1. Re-run the failed job: `gh run rerun <run-id> --failed` (or "Re-run failed jobs" in the
+   Actions UI). The build artifact is reused, so nothing is rebuilt.
+2. If the same error persists, Pages still holds the previous deployment. Release it and
+   re-run the job once more:
+
+   ```bash
+   gh api -X POST repos/<owner>/<repo>/deployments/<deployment-id>/statuses -f state=inactive
+   ```
+
+Check the result against the live site — `sitemap-0.xml` must list one `biases/…` URL per
+entry, and `llms.txt` must report the current entry count.
+
 ## Adding new entries
 
 You don't — content lives in the encyclopedia repo. Add a new file at `ru/5. Каталог/<English name>.md` there following the [CONTRIBUTING.md](https://github.com/vladimirmyshkovski/cognitive-bias-encyclopedia/blob/main/ru/CONTRIBUTING.md) template.
